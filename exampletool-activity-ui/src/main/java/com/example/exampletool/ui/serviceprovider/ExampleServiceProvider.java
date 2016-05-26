@@ -17,7 +17,7 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 
 public class ExampleServiceProvider implements ServiceDescriptionProvider {
-	private File cwlFilesLocation = new File("/home/maanadev/1");
+	private File cwlFilesLocation = new File("/home/maanadev/1");//here give the location of cwl tools.
 	private static final URI providerId = URI
 		.create("http://example.com/2011/service-provider/exampletool");
 	
