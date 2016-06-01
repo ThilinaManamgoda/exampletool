@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,11 +14,15 @@ import javax.swing.Icon;
 
 import org.yaml.snakeyaml.Yaml;
 
-import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
+import net.sf.taverna.t2.servicedescriptions.AbstractConfigurableServiceProvider;
+import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 
-public class ExampleServiceProvider implements ServiceDescriptionProvider {
-	private File cwlFilesLocation = new File("/home/maanadev/1");//here give the location of cwl tools.
+public class ExampleServiceProvider extends AbstractConfigurableServiceProvider<ExampleServiceProviderConfig> implements
+ConfigurableServiceProvider<ExampleServiceProviderConfig> {
+	public ExampleServiceProvider() {
+		super(new ExampleServiceProviderConfig());
+	}
+	private File cwlFilesLocation ;
 	private static final URI providerId = URI
 		.create("http://example.com/2011/service-provider/exampletool");
 	
@@ -30,7 +35,7 @@ public class ExampleServiceProvider implements ServiceDescriptionProvider {
 		// Use callback.status() for long-running searches
 		// callBack.status("Resolving example services");
 
-	
+		cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
 
 		// This is holding the CWL configuration beans
 		List<ExampleServiceDesc> result = new ArrayList<ExampleServiceDesc>();
@@ -52,11 +57,11 @@ public class ExampleServiceProvider implements ServiceDescriptionProvider {
 				// Creating CWl service Description
 				ExampleServiceDesc cwlServiceDesc = new ExampleServiceDesc();
 				cwlServiceDesc.setCwlConfiguration(cwlFile);
-				cwlServiceDesc.setExampleString("Example " + i);
+				cwlServiceDesc.setExampleString(file.getName().split("\\.")[0]);
 				cwlServiceDesc.setExampleUri(URI.create("http://localhost:8192/service"));
 
 				// Optional: set description
-				cwlServiceDesc.setDescription("Service example number " + i);
+			//	cwlServiceDesc.setDescription("Service example number " + i);
 				i++;
 				// add to the result
 				result.add(cwlServiceDesc);
@@ -103,16 +108,21 @@ public class ExampleServiceProvider implements ServiceDescriptionProvider {
 	 * provider'
 	 */
 	public String getName() {
-		return "My example service";
+		return "CWL services";
 	}
 	
 	@Override
 	public String toString() {
-		return getName();
+		return  "CWL services"+getConfiguration().getUri();
 	}
 	
 	public String getId() {
 		return providerId.toASCIIString();
+	}
+	@Override
+	protected List<? extends Object> getIdentifyingData() {
+		// TODO Auto-generated method stub
+		return Arrays.asList(getConfiguration().getUri());
 	}
 
 }
