@@ -2,6 +2,7 @@ package com.example.exampletool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +31,10 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private static final String ID = "id";
 	private static final String TYPE = "type";
 	private static final String ARRAY = "array";
-	private static final String FILE = "File";
-	private static final String ITEMS = "items";
+
+	private static final int DEPTH_0 = 0;
+	private static final int DEPTH_1 = 1;
+	private static final int DEPTH_2 = 2;
 
 	private ExampleActivityConfigurationBean configBean;
 
@@ -63,57 +66,62 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		removeOutputs();
 		Map cwlFile = configBean.getCwlConfigurations();
 
-		// Get all input objects in
-		ArrayList<Map> inputs = (ArrayList<Map>) cwlFile.get(INPUTS);
+		HashMap<String, Integer> processedInputs;
 
-		HashMap<String, Type> processedInputs;
-
-		if (inputs != null) {
-			processedInputs = processInputs(inputs);
+		if (cwlFile != null) {
+			processedInputs = processInputs(cwlFile);
 
 			for (String inputId : processedInputs.keySet()) {
-				if (processedInputs.get(inputId).getType().equals(FILE))
-					addInput(inputId, 0, true, null, String.class);
-				if (processedInputs.get(inputId).getType().equals(ARRAY))
-					addInput(inputId, 1, true, null, byte[].class);
+				int depth = processedInputs.get(inputId);
+				if (depth == DEPTH_0)
+					addInput(inputId, DEPTH_0, true, null, String.class);
+				else if (depth == DEPTH_1)
+					addInput(inputId, DEPTH_1, true, null, byte[].class);
+
 			}
 
 		}
 
 	}
 
-	private HashMap<String, Type> processInputs(ArrayList<Map> inputs) {
+	private HashMap<String, Integer> processInputs(Map cwlFile) {
 
-		HashMap<String, Type> result = new HashMap<>();
+		HashMap<String, Integer> result = new HashMap<>();
 
-		for (Map input : inputs) {
+		// Get all input objects in
+		Object inputs = cwlFile.get(INPUTS);
+		
+		
+		if (inputs.getClass() == ArrayList.class) {
 
-			String Id = (String) input.get(ID);
-			// This require for nested type definitions
-			Map typeConfigurations;
-			// this object holds the type and if it's an array then type of the
-			// elements in the array
-			Type type = new Type();
-			try {
-				/*
-				 * This part will go through nested type definitions
-				 * 
-				 * type : type : array items : boolean
-				 * 
-				 */
+			for (Map input : (ArrayList<Map>) inputs) {
+				String currentInputId = (String) input.get(ID);
+				Object typeConfigurations;
 
-				typeConfigurations = (Map) input.get(TYPE);
-				type.setType((String) typeConfigurations.get(TYPE));
-				type.setItems((String) typeConfigurations.get(ITEMS));
-			} catch (ClassCastException e) {
-				/*
-				 * This exception means type is described as single argument ex:
-				 * type : File
-				 */
-				type.setType((String) input.get(TYPE));
-				type.setItems(null);
+				try {
+
+					typeConfigurations = input.get(TYPE);
+					// if type :single argument
+					if (typeConfigurations.getClass() == String.class) {
+						result.put(currentInputId, DEPTH_0);
+						// type : defined as another map which contains type:
+					} else if (typeConfigurations.getClass() == LinkedHashMap.class) {
+						String inputType = (String) ((Map) typeConfigurations).get(TYPE);
+						if (inputType.equals(ARRAY))
+							result.put(currentInputId, DEPTH_1);
+					}
+
+				} catch (ClassCastException e) {
+
+					System.out.println("Class cast exception !!!");
+				}
+
 			}
-			result.put(Id, type);
+		} else if (inputs.getClass() == LinkedHashMap.class) {
+			for (Object parameter : ((Map) inputs).keySet()) {
+				if (parameter.toString().startsWith("$"))
+					System.out.println("Exception");
+			}
 		}
 		return result;
 	}
