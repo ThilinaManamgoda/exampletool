@@ -24,7 +24,7 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 	}
 	private File cwlFilesLocation ;
 	private static final URI providerId = URI
-		.create("http://example.com/2011/service-provider/exampletool");
+		.create("http://cwl.com/2016/service-provider/cwlcommandlinetools");
 	
 	/**
 	 * Do the actual search for services. Return using the callBack parameter.
@@ -108,12 +108,12 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 	 * provider'
 	 */
 	public String getName() {
-		return "CWL services";
+		return "CWL Services";
 	}
 	
 	@Override
 	public String toString() {
-		return  "CWL services"+getConfiguration().getUri();
+		return  "CWL services";
 	}
 	
 	public String getId() {
@@ -122,7 +122,7 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 	@Override
 	protected List<? extends Object> getIdentifyingData() {
 		// TODO Auto-generated method stub
-		return Arrays.asList(getConfiguration().getUri());
+		return Arrays.asList(getConfiguration().getPath());
 	}
 
 }

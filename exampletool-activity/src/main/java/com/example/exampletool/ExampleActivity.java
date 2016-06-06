@@ -28,6 +28,7 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private static final String OUT_SIMPLE_OUTPUT = "simpleOutput";
 	private static final String OUT_REPORT = "report";
 	private static final String INPUTS = "inputs";
+	private static final String OUTPUTS = "outputs";
 	private static final String ID = "id";
 	private static final String TYPE = "type";
 	private static final String ARRAY = "array";
@@ -67,7 +68,7 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		Map cwlFile = configBean.getCwlConfigurations();
 
 		HashMap<String, Integer> processedInputs;
-
+		HashMap<String, Integer> processedOutputs;
 		if (cwlFile != null) {
 			processedInputs = processInputs(cwlFile);
 
@@ -79,19 +80,31 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 					addInput(inputId, DEPTH_1, true, null, byte[].class);
 
 			}
+			processedOutputs = processOutputs(cwlFile);
+			for (String inputId : processedOutputs.keySet()) {
+				int depth = processedOutputs.get(inputId);
+				if (depth == DEPTH_0)
+					addOutput(inputId, DEPTH_0);
+				else if (depth == DEPTH_1)
+					addOutput(inputId, DEPTH_1);
 
+			}
 		}
 
 	}
 
+	private HashMap<String, Integer> processOutputs(Map cwlFile) {
+			return process(cwlFile.get(OUTPUTS));
+	}
+
 	private HashMap<String, Integer> processInputs(Map cwlFile) {
+		return process(cwlFile.get(INPUTS));
+	}
+
+	private HashMap<String, Integer> process(Object inputs) {
 
 		HashMap<String, Integer> result = new HashMap<>();
 
-		// Get all input objects in
-		Object inputs = cwlFile.get(INPUTS);
-		
-		
 		if (inputs.getClass() == ArrayList.class) {
 
 			for (Map input : (ArrayList<Map>) inputs) {

@@ -24,7 +24,7 @@ public class ExampleServiceIcon implements ActivityIconSPI {
 	
 	public static Icon getIcon() {
 		if (icon == null) {
-			icon = new ImageIcon(ExampleServiceIcon.class.getResource("/exampleIcon.png"));
+			icon = new ImageIcon("/home/maanadev/Developer/GSOC/CWL/cwl-logo-header.png");
 		}
 		return icon;
 	}

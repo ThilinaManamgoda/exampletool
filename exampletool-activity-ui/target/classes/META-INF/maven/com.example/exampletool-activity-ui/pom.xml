@@ -36,7 +36,7 @@
 			<artifactId>activity-tools</artifactId>
 			<version>${t2.ui.impl.version}</version>
 		</dependency>
-<dependency>
+		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.17</version>
@@ -123,13 +123,13 @@
 				</exclusion>
 				<!-- Perspectives pulling in too many dependencies -->
 				<exclusion>
-				 	<!--  fails due to direct dependency to WSDL -->
-				 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
-				 	<artifactId>perspective-biocatalogue</artifactId>
+					<!-- fails due to direct dependency to WSDL -->
+					<groupId>net.sf.taverna.t2.ui-exts</groupId>
+					<artifactId>perspective-biocatalogue</artifactId>
 				</exclusion>
 				<exclusion>
-				 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
-				 	<artifactId>perspective-myexperiment</artifactId>
+					<groupId>net.sf.taverna.t2.ui-exts</groupId>
+					<artifactId>perspective-myexperiment</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
