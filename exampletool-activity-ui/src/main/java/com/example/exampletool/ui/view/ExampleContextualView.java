@@ -84,6 +84,16 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 		return null;
 	}
 
+	private String paragraphToHtml(String summery, String paragraph) {
+
+		summery += "<tr><td colspan='2' align='left'>";
+		for (String line : paragraph.split("[\n|\r]"))
+			summery += "<p>" + line + "</p>";
+		// summery += "<p>"+ description +"</p>";
+		summery += "</td></tr>";
+		return summery;
+	}
+
 	@Override
 	protected String getRawTableRowsHtml() {
 		String summery = "";
@@ -93,96 +103,41 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 
 		if (cwlFile.containsKey("description")) {
 			description = (String) cwlFile.get("description");
-			summery += "<tr><td colspan='2' align='left'>";
-			for (String line : description.split("[\n|\r]"))
-				summery += "<p>" + line + "</p>";
-			// summery += "<p>"+ description +"</p>";
-			summery += "</td></tr>";
+			summery = paragraphToHtml(summery, description);
 
 		}
-		if (cwlFile.containsKey(INPUTS)) {
-			summery += "<tr><th colspan='2' align='left'>Inputs</th></tr>";
 
-			HashMap<String, PortDetail> inputs = process(cwlFile.get(INPUTS));
+		summery += "<tr><th colspan='2' align='left'>Inputs</th></tr>";
+
+		HashMap<String, PortDetail> inputs = activity.getProcessedInputs();
+		if (inputs != null)
 			for (String id : inputs.keySet()) {
 				PortDetail detail = inputs.get(id);
 				summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
 
 				if (detail.getDescription() != null) {
-					summery += "<tr><td colspan='2' align='left'>";
-					for (String line : detail.getDescription().split("[\n|\r]"))
-						summery += "<p>" + line + "</p>";
 
-					summery += "</td></tr>";
+					summery = paragraphToHtml(summery, detail.getDescription());
+
 				}
 				summery += "<tr></tr>";
 			}
-		}
-		if (cwlFile.containsKey(OUTPUTS)) {
-			summery += "<tr><th colspan='2' align='left'>Outputs</th></tr>";
 
-			HashMap<String, PortDetail> inputs = process(cwlFile.get(OUTPUTS));
-			for (String id : inputs.keySet()) {
-				PortDetail detail = inputs.get(id);
+		summery += "<tr><th colspan='2' align='left'>Outputs</th></tr>";
+
+		HashMap<String, PortDetail> outPuts = activity.getProcessedOutputs();
+		if (outPuts != null)
+			for (String id : outPuts.keySet()) {
+				PortDetail detail = outPuts.get(id);
 				summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
 
 				if (detail.getDescription() != null) {
-					summery += "<tr><td colspan='2' align='left'>";
-					for (String line : detail.getDescription().split("[\n|\r]"))
-						summery += "<p>" + line + "</p>";
-
-					summery += "</td></tr>";
+					summery = paragraphToHtml(summery, detail.getDescription());
 				}
 				summery += "<tr></tr>";
 			}
-		}
+
 		return summery;
-	}
-
-	private HashMap<String, PortDetail> process(Object inputs) {
-
-		HashMap<String, PortDetail> result = new HashMap<>();
-
-		if (inputs.getClass() == ArrayList.class) {
-			PortDetail detail = new PortDetail();
-			for (Map input : (ArrayList<Map>) inputs) {
-				String currentInputId = (String) input.get(ID);
-				Object typeConfigurations;
-				if (input.containsKey(DESCRIPTION)) {
-					detail.setDescription((String) input.get(DESCRIPTION));
-				} else {
-					detail.setDescription(null);
-				}
-				try {
-
-					typeConfigurations = input.get(TYPE);
-					// if type :single argument
-					if (typeConfigurations.getClass() == String.class) {
-						detail.setDepth(DEPTH_0);
-
-						result.put(currentInputId, detail);
-						// type : defined as another map which contains type:
-					} else if (typeConfigurations.getClass() == LinkedHashMap.class) {
-						String inputType = (String) ((Map) typeConfigurations).get(TYPE);
-						if (inputType.equals(ARRAY)) {
-							detail.setDepth(DEPTH_1);
-							result.put(currentInputId, detail);
-						}
-					}
-
-				} catch (ClassCastException e) {
-
-					System.out.println("Class cast exception !!!");
-				}
-
-			}
-		} else if (inputs.getClass() == LinkedHashMap.class) {
-			for (Object parameter : ((Map) inputs).keySet()) {
-				if (parameter.toString().startsWith("$"))
-					System.out.println("Exception");
-			}
-		}
-		return result;
 	}
 
 }
