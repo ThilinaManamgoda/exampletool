@@ -30,7 +30,7 @@ public class ExampleActivityConfigurationBean implements Serializable {
 	
 	// TODO: Remove the example fields and getters/setters and add your own	
 	private String exampleString;
-
+	
 	private URI exampleUri;
 
 	public String getExampleString() {

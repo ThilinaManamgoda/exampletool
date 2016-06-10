@@ -35,8 +35,8 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 		// Use callback.status() for long-running searches
 		// callBack.status("Resolving example services");
 
-		cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
-
+	//	cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
+		cwlFilesLocation =new File("/home/maanadev/cwlTools");
 		// This is holding the CWL configuration beans
 		List<ExampleServiceDesc> result = new ArrayList<ExampleServiceDesc>();
 

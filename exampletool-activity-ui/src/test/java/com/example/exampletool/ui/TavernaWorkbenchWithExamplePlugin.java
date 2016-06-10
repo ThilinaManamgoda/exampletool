@@ -1,5 +1,6 @@
 package com.example.exampletool.ui;
 
+
 import net.sf.taverna.t2.workbench.dev.DeveloperWorkbench;
 
 /**
@@ -8,7 +9,7 @@ import net.sf.taverna.t2.workbench.dev.DeveloperWorkbench;
  * -Xmx300m -XX:MaxPermSize=140m 
  * -Dsun.swing.enableImprovedDragGesture
  * -Dtaverna.startup=.
- * 
+ * pa
  * NOTE: Do not save any workflows made using this test mode, as the plugin
  * information will be missing from the workflow file, and it will not open
  * in a Taverna run normally.

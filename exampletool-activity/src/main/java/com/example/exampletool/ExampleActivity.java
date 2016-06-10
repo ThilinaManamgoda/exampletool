@@ -36,7 +36,8 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private static final int DEPTH_0 = 0;
 	private static final int DEPTH_1 = 1;
 	private static final int DEPTH_2 = 2;
-
+	private HashMap<String,PortDetail> inputPortDetails;
+	private HashMap<String,PortDetail> outputPortDetails;
 	private ExampleActivityConfigurationBean configBean;
 
 	@Override
@@ -207,6 +208,14 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	@Override
 	public ExampleActivityConfigurationBean getConfiguration() {
 		return this.configBean;
+	}
+
+	public HashMap<String,PortDetail> getInputPortDetails() {
+		return inputPortDetails;
+	}
+
+	public void setInputPortDetails(HashMap<String,PortDetail> inputPortDetails) {
+		this.inputPortDetails = inputPortDetails;
 	}
 
 }
