@@ -35,8 +35,11 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 		// Use callback.status() for long-running searches
 		// callBack.status("Resolving example services");
 
-		cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
-//		cwlFilesLocation =new File("/home/maanadev/cwlTools");
+		//cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
+		cwlFilesLocation =new File("/home/maanadev/cwlTools");
+		//cwlFilesLocation =new File("CWLFiles");
+
+		//cwlFilesLocation =new File("/home/maanadev/Developer/GSOC/common-workflow-language/draft-3/draft-3");
 		// This is holding the CWL configuration beans
 		List<ExampleServiceDesc> result = new ArrayList<ExampleServiceDesc>();
 
@@ -51,7 +54,7 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 			try {
 				cwlFile = (Map) cwlReader.load(new FileInputStream(file));
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 			if (cwlFile != null) {
 				// Creating CWl service Description
