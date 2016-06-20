@@ -3,6 +3,7 @@ package com.example.exampletool.ui.view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,12 +22,12 @@ import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextu
 public class ExampleContextualView extends HTMLBasedActivityContextualView<ExampleActivityConfigurationBean> {
 	private static final String LABEL = "label";
 
-	
-	private static final String TABLE_COLOR = "59A9CB";//this is color in RGB hex value
-	private static final String TABLE_BORDER="2";
-	private static final String TABLE_WIDTH="100%";
+	private static final String TABLE_COLOR = "59A9CB";// this is color in RGB
+														// hex value
+	private static final String TABLE_BORDER = "2";
+	private static final String TABLE_WIDTH = "100%";
 	private static final String TABLE_CELL_PADDING = "5%";
-	
+
 	private final ExampleActivity activity;
 	private JLabel description = new JLabel("ads");
 	private final ExampleActivityConfigurationBean configurationBean;
@@ -88,7 +89,8 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 
 	@Override
 	protected String getRawTableRowsHtml() {
-		String summery = "<table border=\""+TABLE_BORDER+"\" style=\"width:"+TABLE_WIDTH+"\" bgcolor=\""+TABLE_COLOR+"\" cellpadding=\""+TABLE_CELL_PADDING+"\" >";
+		String summery = "<table border=\"" + TABLE_BORDER + "\" style=\"width:" + TABLE_WIDTH + "\" bgcolor=\""
+				+ TABLE_COLOR + "\" cellpadding=\"" + TABLE_CELL_PADDING + "\" >";
 
 		Map cwlFile = configurationBean.getCwlConfigurations();
 		String description = "";
@@ -98,9 +100,9 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 			summery = paragraphToHtml(summery, description);
 
 		}
-		if(cwlFile.containsKey(LABEL)){
+		if (cwlFile.containsKey(LABEL)) {
 			summery += "<tr><th colspan='2' align='left'>Label</th></tr>";
-			summery += "<tr><td colspan='2' align='left'>"+ (String) cwlFile.get(LABEL)+"</td></tr>";
+			summery += "<tr><td colspan='2' align='left'>" + (String) cwlFile.get(LABEL) + "</td></tr>";
 		}
 		summery += "<tr><th colspan='2' align='left'>Inputs</th></tr>";
 
@@ -108,19 +110,7 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 		if (inputs != null && !inputs.isEmpty())
 			for (String id : inputs.keySet()) {
 				PortDetail detail = inputs.get(id);
-				summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
-				if(detail.getLabel()!=null){
-					summery+="<tr><td  align ='left' colspan ='2'>Label: "+detail.getLabel()+"</td></tr>";
-				}
-				if (detail.getDescription() != null) {
-
-					summery = paragraphToHtml(summery, detail.getDescription());
-
-				}
-				if(detail.getFormat()!=null){
-					summery+="<tr><td  align ='left' colspan ='2'>Format: "+detail.getFormat()+"</td></tr>";
-				}
-				summery += "<tr></tr>";
+				summery = extractSummery(summery, id, detail);
 			}
 
 		summery += "<tr><th colspan='2' align='left'>Outputs</th></tr>";
@@ -129,19 +119,39 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 		if (outPuts != null && !outPuts.isEmpty())
 			for (String id : outPuts.keySet()) {
 				PortDetail detail = outPuts.get(id);
-				summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
-				if(detail.getLabel()!=null){
-					summery+="<tr><td  align ='left' colspan ='2'>Label: "+detail.getLabel()+"</td></tr>";
-				}
-				if (detail.getDescription() != null) {
-					summery = paragraphToHtml(summery, detail.getDescription());
-				}
-				if(detail.getFormat()!=null){
-					summery+="<tr><td  align ='left' colspan ='2'>Format: "+detail.getFormat()+"</td></tr>";
-				}
-				summery += "<tr></tr>";
+				summery = extractSummery(summery, id, detail);
 			}
-		summery+="</table>";
+		summery += "</table>";
+		return summery;
+	}
+
+	private String extractSummery(String summery, String id, PortDetail detail) {
+		summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
+		if (detail.getLabel() != null) {
+			summery += "<tr><td  align ='left' colspan ='2'>Label: " + detail.getLabel() + "</td></tr>";
+		}
+		if (detail.getDescription() != null) {
+
+			summery = paragraphToHtml(summery, detail.getDescription());
+
+		}
+		if (detail.getFormat() != null) {
+			summery += "<tr><td  align ='left' colspan ='2'>Format: ";
+			ArrayList<String> formats = detail.getFormat();
+
+			int Size = formats.size();
+
+			if (Size == 1) {
+				summery += formats.get(0);
+			} else {
+				for (int i = 0; i < (Size - 1); i++) {
+					summery += formats.get(i) + ", ";
+				}
+				summery += formats.get(Size - 1);
+			}
+			summery += "</td></tr>";
+		}
+		summery += "<tr></tr>";
 		return summery;
 	}
 

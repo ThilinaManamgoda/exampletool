@@ -192,28 +192,44 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private void extractFormat(Map input, PortDetail detail) {
 		if (input != null)
 			if (input.containsKey(FORMAT)) {
-				String formatInfo = input.get(FORMAT).toString();
 
-				if (formatInfo.startsWith("$")) {
+				Object formatInfo = input.get(FORMAT);
 
-					detail.setFormat(formatInfo);
-				} else if (formatInfo.contains(":")) {
-					String format[] = formatInfo.split(":");
-					String namespaceKey = format[0];
-					String urlAppednd = format[1];
-					if (!nameSpace.isEmpty()) {
-						if (nameSpace.containsKey(namespaceKey))
-							detail.setFormat(nameSpace.get(namespaceKey) + urlAppednd);
-						else
-							detail.setFormat(formatInfo);
-					} else {
-						detail.setFormat(formatInfo);
+				ArrayList<String> format = new ArrayList<>();
+				detail.setFormat(format);
+
+				if (formatInfo.getClass() == String.class) {
+
+					extractThisFormat(formatInfo.toString(), detail);
+				} else if (formatInfo.getClass() == ArrayList.class) {
+					for (Object eachFormat : (ArrayList) formatInfo) {
+						extractThisFormat(eachFormat.toString(), detail);
 					}
-				} else {
-					detail.setFormat(formatInfo);
 				}
 
 			}
+	}
+
+	private void extractThisFormat(String formatInfoString, PortDetail detail) {
+		if (formatInfoString.startsWith("$")) {
+
+			 detail.addFormat(formatInfoString);
+		} else if (formatInfoString.contains(":")) {
+			String format[] = formatInfoString.split(":");
+			String namespaceKey = format[0];
+			String urlAppednd = format[1];
+			if (!nameSpace.isEmpty()) {
+				if (nameSpace.containsKey(namespaceKey))
+					detail.addFormat(nameSpace.get(namespaceKey) + urlAppednd);
+				else
+
+					detail.addFormat(formatInfoString);
+			} else {
+				 detail.addFormat(formatInfoString);
+			}
+		} else {
+			 detail.addFormat(formatInfoString);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
