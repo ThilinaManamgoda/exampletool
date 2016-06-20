@@ -37,7 +37,6 @@ ConfigurableServiceProvider<ExampleServiceProviderConfig> {
 
 		//cwlFilesLocation = new File(getConfiguration().getPath());//here give the location of cwl tools.
 		cwlFilesLocation =new File("/home/maanadev/cwlTools");
-		//cwlFilesLocation =new File("CWLFiles");
 
 		//cwlFilesLocation =new File("/home/maanadev/Developer/GSOC/common-workflow-language/draft-3/draft-3");
 		// This is holding the CWL configuration beans

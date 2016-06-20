@@ -36,15 +36,17 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private static final int DEPTH_0 = 0;
 	private static final int DEPTH_1 = 1;
 	private static final int DEPTH_2 = 2;
-	
-	private static final String FLOAT="float";
+
+	private static final String FLOAT = "float";
 	private static final String NULL = "null";
 	private static final String LABEL = "label";
+	private static final String FORMAT = "format";
 	private HashMap<String, PortDetail> processedInputs;
 
 	private HashMap<String, PortDetail> processedOutputs;
 	private ExampleActivityConfigurationBean configBean;
 	private LinkedHashMap nameSpace;
+
 	@Override
 	public void configure(ExampleActivityConfigurationBean configBean) throws ActivityConfigurationException {
 
@@ -65,13 +67,15 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		// REQUIRED: (Re)create input/output ports depending on configuration
 		configurePorts();
 	}
-	public void processNameSpace(Map cwlFile){
-		
-		if(cwlFile.containsKey("$namespaces")){
-			nameSpace = (LinkedHashMap)cwlFile.get("$namespaces");
+
+	public void processNameSpace(Map cwlFile) {
+
+		if (cwlFile.containsKey("$namespaces")) {
+			nameSpace = (LinkedHashMap) cwlFile.get("$namespaces");
 		}
-		
+
 	}
+
 	protected void configurePorts() {
 		// In case we are being reconfigured - remove existing ports first
 		// to avoid duplicates
@@ -121,27 +125,13 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 				PortDetail detail = new PortDetail();
 				String currentInputId = (String) input.get(ID);
 
+				extractDescription(input, detail);
+
+				extractFormat(input, detail);
+
+				extractLabel(input, detail);
+
 				Object typeConfigurations;
-				if (input.containsKey(DESCRIPTION)) {
-					detail.setDescription((String) input.get(DESCRIPTION));
-				} else {
-					detail.setDescription(null);
-				}
-				if(input.containsKey("format")){
-					String namespaceKey = input.get("format").toString().split(":")[0];
-					String urlAppednd =input.get("format").toString().split(":")[1];
-					if(!nameSpace.isEmpty()){
-						detail.setFormat(nameSpace.get(namespaceKey)+urlAppednd);
-					}else{
-						detail.setFormat(null);
-					}
-				}
-				if (input.containsKey(LABEL)) {
-					System.out.println("label");
-					detail.setLabel((String) input.get(LABEL));
-				} else {
-					detail.setLabel(null);
-				}
 				try {
 
 					typeConfigurations = input.get(TYPE);
@@ -157,13 +147,13 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 							detail.setDepth(DEPTH_1);
 							result.put(currentInputId, detail);
 
-						} 
-					}else if(typeConfigurations.getClass() == ArrayList.class){
-						if(isValidDataType((ArrayList)typeConfigurations)){
+						}
+					} else if (typeConfigurations.getClass() == ArrayList.class) {
+						if (isValidDataType((ArrayList) typeConfigurations)) {
 							detail.setDepth(DEPTH_0);
 							result.put(currentInputId, detail);
 						}
-						
+
 					}
 
 				} catch (ClassCastException e) {
@@ -179,6 +169,51 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 			}
 		}
 		return result;
+	}
+
+	private void extractLabel(Map input, PortDetail detail) {
+		if (input != null)
+			if (input.containsKey(LABEL)) {
+				detail.setLabel((String) input.get(LABEL));
+			} else {
+				detail.setLabel(null);
+			}
+	}
+
+	private void extractDescription(Map input, PortDetail detail) {
+		if (input != null)
+			if (input.containsKey(DESCRIPTION)) {
+				detail.setDescription((String) input.get(DESCRIPTION));
+			} else {
+				detail.setDescription(null);
+			}
+	}
+
+	private void extractFormat(Map input, PortDetail detail) {
+		if (input != null)
+			if (input.containsKey(FORMAT)) {
+				String formatInfo = input.get(FORMAT).toString();
+
+				if (formatInfo.startsWith("$")) {
+
+					detail.setFormat(formatInfo);
+				} else if (formatInfo.contains(":")) {
+					String format[] = formatInfo.split(":");
+					String namespaceKey = format[0];
+					String urlAppednd = format[1];
+					if (!nameSpace.isEmpty()) {
+						if (nameSpace.containsKey(namespaceKey))
+							detail.setFormat(nameSpace.get(namespaceKey) + urlAppednd);
+						else
+							detail.setFormat(formatInfo);
+					} else {
+						detail.setFormat(formatInfo);
+					}
+				} else {
+					detail.setFormat(formatInfo);
+				}
+
+			}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -248,8 +283,8 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 
 	public boolean isValidDataType(ArrayList typeConfigurations) {
 		for (Object type : typeConfigurations) {
-			if(!(((String)type).equals(FLOAT) ||
-					((String)type).equals(NULL))) return false;
+			if (!(((String) type).equals(FLOAT) || ((String) type).equals(NULL)))
+				return false;
 		}
 		return true;
 	}

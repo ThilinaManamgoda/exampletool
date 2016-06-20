@@ -99,7 +99,7 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 
 		}
 		if(cwlFile.containsKey(LABEL)){
-			summery += "<tr><th colspan='3' align='left'>Label</th></tr>";
+			summery += "<tr><th colspan='2' align='left'>Label</th></tr>";
 			summery += "<tr><td colspan='2' align='left'>"+ (String) cwlFile.get(LABEL)+"</td></tr>";
 		}
 		summery += "<tr><th colspan='2' align='left'>Inputs</th></tr>";
@@ -110,7 +110,6 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 				PortDetail detail = inputs.get(id);
 				summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
 				if(detail.getLabel()!=null){
-					System.out.println("got a label");
 					summery+="<tr><td  align ='left' colspan ='2'>Label: "+detail.getLabel()+"</td></tr>";
 				}
 				if (detail.getDescription() != null) {
@@ -136,6 +135,9 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 				}
 				if (detail.getDescription() != null) {
 					summery = paragraphToHtml(summery, detail.getDescription());
+				}
+				if(detail.getFormat()!=null){
+					summery+="<tr><td  align ='left' colspan ='2'>Format: "+detail.getFormat()+"</td></tr>";
 				}
 				summery += "<tr></tr>";
 			}
