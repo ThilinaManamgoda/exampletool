@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import com.example.exampletool.ExampleActivity;
 import com.example.exampletool.ExampleActivityConfigurationBean;
 import com.example.exampletool.PortDetail;
+import com.example.exampletool.Utility;
 
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
 
@@ -31,11 +32,12 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 	private final ExampleActivity activity;
 	private JLabel description = new JLabel("ads");
 	private final ExampleActivityConfigurationBean configurationBean;
-
+	private Utility utility;
 	public ExampleContextualView(ExampleActivity activity) {
 		super(activity);
 		this.activity = activity;
 		this.configurationBean = activity.getConfiguration();
+		utility = new Utility(configurationBean.getCwlConfigurations());
 		super.initView();
 	}
 
@@ -106,27 +108,31 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 		}
 		summery += "<tr><th colspan='2' align='left'>Inputs</th></tr>";
 
-		HashMap<String, PortDetail> inputs = activity.getProcessedInputs();
+		HashMap<String, PortDetail> inputs = utility.processInputDetails();
+		HashMap<String, Integer> inputDepths = utility.processInputDepths();
 		if (inputs != null && !inputs.isEmpty())
 			for (String id : inputs.keySet()) {
 				PortDetail detail = inputs.get(id);
-				summery = extractSummery(summery, id, detail);
+				if(inputDepths.containsKey(id))
+				summery = extractSummery(summery, id, detail,inputDepths.get(id));
 			}
 
 		summery += "<tr><th colspan='2' align='left'>Outputs</th></tr>";
 
-		HashMap<String, PortDetail> outPuts = activity.getProcessedOutputs();
+		HashMap<String, PortDetail> outPuts = utility.processOutputDetails();
+		HashMap<String, Integer> outputDepths = utility.processOutputDepths();
 		if (outPuts != null && !outPuts.isEmpty())
 			for (String id : outPuts.keySet()) {
 				PortDetail detail = outPuts.get(id);
-				summery = extractSummery(summery, id, detail);
+				if(outputDepths.containsKey(id))
+					summery = extractSummery(summery, id, detail,outputDepths.get(id));
 			}
 		summery += "</table>";
 		return summery;
 	}
 
-	private String extractSummery(String summery, String id, PortDetail detail) {
-		summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + detail.getDepth() + "</td></tr>";
+	private String extractSummery(String summery, String id, PortDetail detail,int depth) {
+		summery += "<tr align='left'><td> ID: " + id + " </td><td>Depth: " + depth+ "</td></tr>";
 		if (detail.getLabel() != null) {
 			summery += "<tr><td  align ='left' colspan ='2'>Label: " + detail.getLabel() + "</td></tr>";
 		}

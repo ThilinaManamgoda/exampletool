@@ -27,26 +27,13 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 	private static final String OUT_MORE_OUTPUTS = "moreOutputs";
 	private static final String OUT_SIMPLE_OUTPUT = "simpleOutput";
 	private static final String OUT_REPORT = "report";
-	private static final String INPUTS = "inputs";
-	private static final String OUTPUTS = "outputs";
-	private static final String ID = "id";
-	private static final String TYPE = "type";
-	private static final String ARRAY = "array";
-	private static final String DESCRIPTION = "description";
 	private static final int DEPTH_0 = 0;
 	private static final int DEPTH_1 = 1;
 	private static final int DEPTH_2 = 2;
 
-	private static final String FLOAT = "float";
-	private static final String NULL = "null";
-	private static final String LABEL = "label";
-	private static final String FORMAT = "format";
-	private HashMap<String, PortDetail> processedInputs;
-
-	private HashMap<String, PortDetail> processedOutputs;
 	private ExampleActivityConfigurationBean configBean;
-	private LinkedHashMap nameSpace;
-
+	
+private Utility utility ;
 	@Override
 	public void configure(ExampleActivityConfigurationBean configBean) throws ActivityConfigurationException {
 
@@ -65,16 +52,10 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		// this.service = myClient.getService(configBean.getExampleString());
 
 		// REQUIRED: (Re)create input/output ports depending on configuration
+	 utility = new Utility(configBean.getCwlConfigurations());
 		configurePorts();
 	}
 
-	public void processNameSpace(Map cwlFile) {
-
-		if (cwlFile.containsKey("$namespaces")) {
-			nameSpace = (LinkedHashMap) cwlFile.get("$namespaces");
-		}
-
-	}
 
 	protected void configurePorts() {
 		// In case we are being reconfigured - remove existing ports first
@@ -82,21 +63,19 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		removeInputs();
 		removeOutputs();
 		Map cwlFile = configBean.getCwlConfigurations();
-		processNameSpace(cwlFile);
 		if (cwlFile != null) {
-			processedInputs = processInputs(cwlFile);
-
+			HashMap<String, Integer>  processedInputs= utility.processInputDepths();
 			for (String inputId : processedInputs.keySet()) {
-				int depth = processedInputs.get(inputId).getDepth();
+				int depth = processedInputs.get(inputId);
 				if (depth == DEPTH_0)
 					addInput(inputId, DEPTH_0, true, null, String.class);
 				else if (depth == DEPTH_1)
 					addInput(inputId, DEPTH_1, true, null, byte[].class);
 
 			}
-			processedOutputs = processOutputs(cwlFile);
+			HashMap<String, Integer>  processedOutputs = utility.processOutputDepths();
 			for (String inputId : processedOutputs.keySet()) {
-				int depth = processedOutputs.get(inputId).getDepth();
+				int depth = processedOutputs.get(inputId);
 				if (depth == DEPTH_0)
 					addOutput(inputId, DEPTH_0);
 				else if (depth == DEPTH_1)
@@ -107,130 +86,6 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 
 	}
 
-	private HashMap<String, PortDetail> processOutputs(Map cwlFile) {
-		return process(cwlFile.get(OUTPUTS));
-	}
-
-	private HashMap<String, PortDetail> processInputs(Map cwlFile) {
-		return process(cwlFile.get(INPUTS));
-	}
-
-	private HashMap<String, PortDetail> process(Object inputs) {
-
-		HashMap<String, PortDetail> result = new HashMap<>();
-
-		if (inputs.getClass() == ArrayList.class) {
-
-			for (Map input : (ArrayList<Map>) inputs) {
-				PortDetail detail = new PortDetail();
-				String currentInputId = (String) input.get(ID);
-
-				extractDescription(input, detail);
-
-				extractFormat(input, detail);
-
-				extractLabel(input, detail);
-
-				Object typeConfigurations;
-				try {
-
-					typeConfigurations = input.get(TYPE);
-					// if type :single argument
-					if (typeConfigurations.getClass() == String.class) {
-						detail.setDepth(DEPTH_0);
-
-						result.put(currentInputId, detail);
-						// type : defined as another map which contains type:
-					} else if (typeConfigurations.getClass() == LinkedHashMap.class) {
-						String inputType = (String) ((Map) typeConfigurations).get(TYPE);
-						if (inputType.equals(ARRAY)) {
-							detail.setDepth(DEPTH_1);
-							result.put(currentInputId, detail);
-
-						}
-					} else if (typeConfigurations.getClass() == ArrayList.class) {
-						if (isValidDataType((ArrayList) typeConfigurations)) {
-							detail.setDepth(DEPTH_0);
-							result.put(currentInputId, detail);
-						}
-
-					}
-
-				} catch (ClassCastException e) {
-
-					System.out.println("Class cast exception !!!");
-				}
-
-			}
-		} else if (inputs.getClass() == LinkedHashMap.class) {
-			for (Object parameter : ((Map) inputs).keySet()) {
-				if (parameter.toString().startsWith("$"))
-					System.out.println("Exception");
-			}
-		}
-		return result;
-	}
-
-	private void extractLabel(Map input, PortDetail detail) {
-		if (input != null)
-			if (input.containsKey(LABEL)) {
-				detail.setLabel((String) input.get(LABEL));
-			} else {
-				detail.setLabel(null);
-			}
-	}
-
-	private void extractDescription(Map input, PortDetail detail) {
-		if (input != null)
-			if (input.containsKey(DESCRIPTION)) {
-				detail.setDescription((String) input.get(DESCRIPTION));
-			} else {
-				detail.setDescription(null);
-			}
-	}
-
-	private void extractFormat(Map input, PortDetail detail) {
-		if (input != null)
-			if (input.containsKey(FORMAT)) {
-
-				Object formatInfo = input.get(FORMAT);
-
-				ArrayList<String> format = new ArrayList<>();
-				detail.setFormat(format);
-
-				if (formatInfo.getClass() == String.class) {
-
-					extractThisFormat(formatInfo.toString(), detail);
-				} else if (formatInfo.getClass() == ArrayList.class) {
-					for (Object eachFormat : (ArrayList) formatInfo) {
-						extractThisFormat(eachFormat.toString(), detail);
-					}
-				}
-
-			}
-	}
-
-	private void extractThisFormat(String formatInfoString, PortDetail detail) {
-		if (formatInfoString.startsWith("$")) {
-
-			 detail.addFormat(formatInfoString);
-		} else if (formatInfoString.contains(":")) {
-			String format[] = formatInfoString.split(":");
-			String namespaceKey = format[0];
-			String urlAppednd = format[1];
-			if (!nameSpace.isEmpty()) {
-				if (nameSpace.containsKey(namespaceKey))
-					detail.addFormat(nameSpace.get(namespaceKey) + urlAppednd);
-				else
-
-					detail.addFormat(formatInfoString);
-			} else {
-				 detail.addFormat(formatInfoString);
-			}
-		} else {
-			 detail.addFormat(formatInfoString);
-		}
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -297,33 +152,13 @@ public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivit
 		});
 	}
 
-	public boolean isValidDataType(ArrayList typeConfigurations) {
-		for (Object type : typeConfigurations) {
-			if (!(((String) type).equals(FLOAT) || ((String) type).equals(NULL)))
-				return false;
-		}
-		return true;
-	}
+	
 
 	@Override
 	public ExampleActivityConfigurationBean getConfiguration() {
 		return this.configBean;
 	}
 
-	public HashMap<String, PortDetail> getProcessedInputs() {
-		return processedInputs;
-	}
 
-	public void setProcessedInputs(HashMap<String, PortDetail> processedInputs) {
-		this.processedInputs = processedInputs;
-	}
-
-	public HashMap<String, PortDetail> getProcessedOutputs() {
-		return processedOutputs;
-	}
-
-	public void setProcessedOutputs(HashMap<String, PortDetail> processedOutputs) {
-		this.processedOutputs = processedOutputs;
-	}
 
 }
