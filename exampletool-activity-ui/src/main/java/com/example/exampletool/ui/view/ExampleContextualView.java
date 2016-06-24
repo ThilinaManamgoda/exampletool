@@ -12,10 +12,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.example.cwl.PortDetail;
+import com.example.cwl.Utility;
 import com.example.exampletool.ExampleActivity;
 import com.example.exampletool.ExampleActivityConfigurationBean;
-import com.example.exampletool.PortDetail;
-import com.example.exampletool.Utility;
 
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
 
@@ -110,7 +110,7 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 
 		HashMap<String, PortDetail> inputs = utility.processInputDetails();
 		HashMap<String, Integer> inputDepths = utility.processInputDepths();
-		if (inputs != null && !inputs.isEmpty())
+		if ((inputs != null && !inputs.isEmpty())&&(inputDepths != null && !inputDepths.isEmpty()))
 			for (String id : inputs.keySet()) {
 				PortDetail detail = inputs.get(id);
 				if(inputDepths.containsKey(id))
@@ -121,7 +121,7 @@ public class ExampleContextualView extends HTMLBasedActivityContextualView<Examp
 
 		HashMap<String, PortDetail> outPuts = utility.processOutputDetails();
 		HashMap<String, Integer> outputDepths = utility.processOutputDepths();
-		if (outPuts != null && !outPuts.isEmpty())
+		if ((outPuts != null && !outPuts.isEmpty())&&(outputDepths != null && !outputDepths.isEmpty()))
 			for (String id : outPuts.keySet()) {
 				PortDetail detail = outPuts.get(id);
 				if(outputDepths.containsKey(id))

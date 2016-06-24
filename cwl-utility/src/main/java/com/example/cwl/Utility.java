@@ -20,7 +20,12 @@ public class Utility {
 
 	private static final String FLOAT = "float";
 	private static final String NULL = "null";
+	private static final String BOOLEAN = "boolean";
+	private static final String INT = "int";
+	private static final String DOUBLE = "double";
+	private static final String STRING = "string";
 	private static final String LABEL = "label";
+	private static final String FILE = "file";
 	private static final String FORMAT = "format";
 	private LinkedHashMap nameSpace;
 	private Map cwlFile;
@@ -186,7 +191,9 @@ public class Utility {
 	}
 	public boolean isValidDataType(ArrayList typeConfigurations) {
 		for (Object type : typeConfigurations) {
-			if (!(((String) type).equals(FLOAT) || ((String) type).equals(NULL)))
+			if (!(((String) type).equals(FLOAT) || ((String) type).equals(NULL) || ((String) type).equals(BOOLEAN)
+					|| ((String) type).equals(INT) || ((String) type).equals(STRING) || ((String) type).equals(DOUBLE)
+					|| ((String) type).equals(FILE)))
 				return false;
 		}
 		return true;

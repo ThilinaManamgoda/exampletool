@@ -2,9 +2,11 @@ package com.example.exampletool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+
+import com.example.cwl.Utility;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -16,7 +18,6 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.AsynchronousActivityCa
 
 public class ExampleActivity extends AbstractAsynchronousActivity<ExampleActivityConfigurationBean>
 		implements AsynchronousActivity<ExampleActivityConfigurationBean> {
-
 	/*
 	 * Best practice: Keep port names as constants to avoid misspelling. This
 	 * would not apply if port names are looked up dynamically from the service
@@ -60,6 +61,7 @@ private Utility utility ;
 	protected void configurePorts() {
 		// In case we are being reconfigured - remove existing ports first
 		// to avoid duplicates
+		
 		removeInputs();
 		removeOutputs();
 		Map cwlFile = configBean.getCwlConfigurations();
